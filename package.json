@@ -1,15 +1,17 @@
 {
-  "name": "task-manager",
+  "name": "concert-list-manager",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index",
+    "start": "env-cmd -f ./config/prod.env node src/index.js",
     "dev": "env-cmd -f ./config/dev.env nodemon src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "env-cmd -f ./config/test.env jest --watch --runInBand"
+  },
+  "jest": {
+    "testEnvironment": "node"
   },
   "keywords": [],
-  "author": "",
+  "author": "Sarah Plazio",
   "license": "ISC",
   "dependencies": {
     "@sendgrid/mail": "^7.7.0",
@@ -24,6 +26,20 @@
   },
   "devDependencies": {
     "env-cmd": "^10.1.0",
-    "nodemon": "^2.0.22"
-  }
+    "jest": "^29.5.0",
+    "nodemon": "^2.0.22",
+    "supertest": "^6.3.3"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/splazioCDW/concert-list-manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/splazioCDW/concert-list-manager/issues"
+  },
+  "homepage": "https://github.com/splazioCDW/concert-list-manager#readme",
+  "description": ""
 }

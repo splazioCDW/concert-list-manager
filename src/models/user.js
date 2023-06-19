@@ -4,7 +4,8 @@ const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-const Task = require('./task')
+//const Task = require('./task')
+const Concert = require('./concert')
 
 //use middleware to run code just before or after functions: save is the function. 
 //create schema to use middleware functionality to hash passwords 
@@ -29,7 +30,7 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        minlength: 7,
+        minlength: 9,
         trim: true,
         validate(value) {
             if (value.toLowerCase().includes('password')) {
@@ -39,10 +40,13 @@ const userSchema = new mongoose.Schema({
     },     
     age: {
         type: Number,
-        default: 0,
+        default: 18,
         validate(value) {
             if (value < 0) {
                 throw new Error('Age must be a positive number')
+            }
+            if (value < 18) {
+                throw new Error('You must be 18 years or older to use this application.')
             }
         }
     },
@@ -63,8 +67,8 @@ const userSchema = new mongoose.Schema({
 
 //setup a virtual property which is a relationship between two entities
 //instead of storing in a database. Tells mongoose who is what and how they are related
-userSchema.virtual('tasks', {
-    ref: 'Task',
+userSchema.virtual('concert', {
+    ref: 'Concert',
     localField: '_id',
     foreignField: 'owner'
 })
@@ -121,70 +125,14 @@ userSchema.statics.findByCredentials = async (email, password) => {
 userSchema.pre('save', async function (next) {
     //assign a variable to be less confusing
     const user = this
-    // console.log('just before saving')
-    // console.log('before hash', user.password)
-    // console.log('pw modified ', user.isModified('password'))
-    // don't want to hash twice, so only used when the user is created or updated and the password was an item to change
     if(user.isModified('password')) {
         user.password = await bcrypt.hash(user.password, 8)
     }
-    // console.log('after hash: ', user.password)
     //must call next() at the end of the function, so it doesn't hang forever and wont save the user. 
     next()
 })
 
-//DOES NOT WORK - middleware is never reached
-// //delete user tasks when user is removed
-// // userSchema.pre('remove', async function (next) {
-// userSchema.pre('findByIdAndDelete', async function (next) {
-//     const user = this
-//     console.log('user ', user)
-//     await Task.deleteMany({ owner: user._id})
-//     next()
-// })
-
-//define user model 
-//and add schema
+//define user model and add schema
 const User = mongoose.model('User', userSchema)
-
-// //restructured to add schema to utilize middleware for hashing passwords
-// const User = mongoose.model('User', {
-//     name: {
-//         type: String,
-//         required: true,
-//         trim: true
-//     },
-//     email: {
-//         type: String, 
-//         required: true, 
-//         trim: true,
-//         lowercase: true,
-//         validate(value) {
-//             if (!validator.isEmail(value)) {
-//                 throw new Error('Email is invalid')
-//             }
-//         }
-//     },
-//     password: {
-//         type: String,
-//         required: true,
-//         minlength: 7,
-//         trim: true,
-//         validate(value) {
-//             if (value.toLowerCase().includes('password')) {
-//                 throw new Error('Password cannot contain "password".')
-//             }
-//         }
-//     },     
-//     age: {
-//         type: Number,
-//         default: 0,
-//         validate(value) {
-//             if (value < 0) {
-//                 throw new Error('Age must be a positive number')
-//             }
-//         }
-//     }
-// })
 
 module.exports = User
