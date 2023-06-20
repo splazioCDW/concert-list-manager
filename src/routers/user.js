@@ -162,6 +162,8 @@ router.patch('/users/me', auth, async (req, res) => {
 
 //delete user by id in https request
 // router.delete('/users/:id', async (req, res) => {
+
+//delete authenticated user
 //update for authorization
 router.delete('/users/me', auth, async (req, res) => {
     try {
@@ -206,7 +208,8 @@ router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) 
 
    
     await req.user.save()
-    res.send()
+    res.set('Content-Type', 'image/png')
+    res.send(req.user.avatar)
 }, (error, req, res, next) => {
     res.status(400).send({ error: error.message })
 })
@@ -221,12 +224,14 @@ router.delete('/users/me/avatar', auth, async (req, res) => {
 
 //fetching the avatar image by user ID
 router.get('/users/:id/avatar', async (req, res) => {
+    
     try {
         const user = await User.findById(req.params.id)
         //error thrown when no user or avatar is found
         if (!user || !user.avatar) {
             throw new Error('No avatar found.')
         }
+
         //send back correct data and the type
         // set takes a value pair name of response header we are trying to set and the value we are trying to set on it 
         // res.set('Content-Type', 'image/jpg')
@@ -240,24 +245,11 @@ router.get('/users/:id/avatar', async (req, res) => {
 })
 
 // //fetching the avatar image for authorized user
-// router.get('/users/me/avatar', async (req, res) => {
-//     try {
-//         //const user = await User.findById(req.user._id)
-//         console.log(user)
-//         //error thrown when no user or avatar is found
-//         if (!user || !user.avatar) {
-//             throw new Error('No avatar found.')
-//         }
-//         //send back correct data and the type
-//         // set takes a value pair name of response header we are trying to set and the value we are trying to set on it 
-//         // res.set('Content-Type', 'image/jpg')
-//         res.set('Content-Type', 'image/png')
-
-//         res.send(req.user.avatar)
-
-//     } catch (e) {
-//         res.status(404).send()
-//     }
+// router.get('/users/me/avatar', auth, async (req, res) => {
+//     //console.log('req ', req)
+//     console.log('user.avatar ', user.avatar)
+//     res.set('Content-Type', 'image/png')
+//     res.send(req.user.avatar)
 // })
 
 module.exports = router
